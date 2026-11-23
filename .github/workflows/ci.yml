@@ -1,0 +1,84 @@
+name: NEXUS RH — CI Qualité, Sécurité & PostgreSQL 16 RLS
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Gouvernance, Typage, PostgreSQL 16 Réel (FORCE RLS), Tests & Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: nexus_rh_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_pg_superuser_ephemeral_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d nexus_rh_ci"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Récupération du dépôt
+        uses: actions/checkout@v4
+
+      - name: Installation pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Installation Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Installation des dépendances (lockfile strict)
+        run: pnpm install --frozen-lockfile
+
+      - name: Contrôles de gouvernance (licence, secrets, FORCE RLS, DEVICE_ONLY)
+        run: pnpm check:governance
+
+      - name: Initialisation des rôles non-privilégiés sur PostgreSQL 16 réel
+        env:
+          PGPASSWORD: ci_pg_superuser_ephemeral_only
+          POSTGRES_USER: postgres
+          POSTGRES_DB: nexus_rh_ci
+          NEXUS_MIGRATOR_PASSWORD: ci_migrator_ephemeral_only
+          NEXUS_APP_PASSWORD: ci_app_ephemeral_only
+        run: |
+          psql -h 127.0.0.1 -U postgres -d nexus_rh_ci -v ON_ERROR_STOP=1 <<'SQL'
+            CREATE ROLE nexus_migrator LOGIN PASSWORD 'ci_migrator_ephemeral_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
+            CREATE ROLE nexus_app LOGIN PASSWORD 'ci_app_ephemeral_only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
+            GRANT CONNECT ON DATABASE nexus_rh_ci TO nexus_migrator, nexus_app;
+            GRANT USAGE, CREATE ON SCHEMA public TO nexus_migrator;
+            GRANT USAGE ON SCHEMA public TO nexus_app;
+            GRANT nexus_app TO nexus_migrator;
+            ALTER DEFAULT PRIVILEGES FOR ROLE nexus_migrator IN SCHEMA public
+              GRANT USAGE, SELECT ON SEQUENCES TO nexus_app;
+          SQL
+
+      - name: Compilation et vérification stricte des types TypeScript
+        run: pnpm build && pnpm typecheck
+
+      - name: Application des migrations SQL sur PostgreSQL 16 réel (rôle nexus_migrator)
+        env:
+          INFRA_PROFILE: docker
+          DATABASE_URL: postgresql://nexus_migrator:ci_migrator_ephemeral_only@127.0.0.1:5432/nexus_rh_ci
+        run: pnpm db:migrate
+
+      - name: Exécution des tests unitaires, RLS PostgreSQL 16 réel et intégration API
+        env:
+          TEST_POSTGRES_URL: postgresql://nexus_migrator:ci_migrator_ephemeral_only@127.0.0.1:5432/nexus_rh_ci
+        run: pnpm test

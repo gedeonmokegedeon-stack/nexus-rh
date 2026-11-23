@@ -1,0 +1,37 @@
+LICENCE PROPRIÉTAIRE COMMERCIALE — NEXUS RH
+PROPRIETARY COMMERCIAL LICENSE — ALL RIGHTS RESERVED
+
+Copyright (c) 2026 NEXUS RH / Propriétaire du projet (gedeonmokegedeon-stack).
+Tous droits réservés. All rights reserved.
+
+1. PROPRIÉTÉ INTELLECTUELLE
+Ce logiciel, son architecture, son code source, ses schémas de base de données,
+ses migrations, ses algorithmes, ses interfaces graphiques, ses connecteurs et
+l'ensemble de sa documentation associée (collectivement le « Logiciel NEXUS RH »)
+constituent une œuvre propriétaire et confidentielle protégée par les lois
+applicables en matière de propriété intellectuelle et de secret des affaires,
+notamment en République Démocratique du Congo et en vertu des conventions
+internationales.
+
+2. INTERDICTIONS STRICTES
+Sauf autorisation écrite, préalable et expresse du Propriétaire du projet,
+il est strictement interdit de :
+- copier, reproduire, distribuer, publier, sous-licencier, vendre ou louer tout
+  ou partie du Logiciel NEXUS RH ;
+- modifier, adapter, traduire, décompiler, désassembler ou créer des œuvres
+  dérivées à partir du Logiciel NEXUS RH ;
+- divulguer le code source, les spécifications techniques ou la documentation
+  interne à un tiers non habilité ;
+- exploiter le Logiciel NEXUS RH pour fournir un service commercial ou interne
+  sans contrat de licence ou d'abonnement SaaS valide conclu avec le Propriétaire.
+
+3. ACCÈS SAAS
+L'accès éventuel à la plateforme NEXUS RH par une entreprise cliente est régi
+exclusivement par un contrat d'abonnement SaaS distinct et un accord de
+sous-traitance des données personnelles (DPA), et n'emporte aucun transfert de
+propriété intellectuelle ni aucun droit d'accès au code source.
+
+4. ABSENCE DE LICENCE IMPLICITE
+Aucune disposition du présent fichier ne saurait être interprétée comme
+accordant une licence open-source, libre ou implicite de quelque nature que ce
+soit.

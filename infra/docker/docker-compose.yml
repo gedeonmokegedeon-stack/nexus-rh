@@ -1,0 +1,83 @@
+# NEXUS RH — Environnement Docker Compose (Développement complet & Pré-production locale)
+# Exige un fichier .env renseigné avec des mots de passe forts (jamais versionnés).
+
+name: nexus-rh
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-nexus_rh}
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?Définir POSTGRES_SUPERUSER_PASSWORD dans .env}
+      NEXUS_MIGRATOR_PASSWORD: ${NEXUS_MIGRATOR_PASSWORD:?Définir NEXUS_MIGRATOR_PASSWORD dans .env}
+      NEXUS_APP_PASSWORD: ${NEXUS_APP_PASSWORD:?Définir NEXUS_APP_PASSWORD dans .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - nexus_pg_data:/var/lib/postgresql/data
+      - ./postgres/init-roles.sh:/docker-entrypoint-initdb.d/01-init-roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_SUPERUSER:-postgres} -d ${POSTGRES_DB:-nexus_rh}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?Définir REDIS_PASSWORD dans .env}
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - "${REDIS_PASSWORD:?Définir REDIS_PASSWORD dans .env}"
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - nexus_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-nexus}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Définir RABBITMQ_PASSWORD dans .env}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-nexus_rh}
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    volumes:
+      - nexus_rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:?Définir S3_ACCESS_KEY_ID dans .env}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:?Définir S3_SECRET_ACCESS_KEY dans .env}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - nexus_minio_data:/data
+
+volumes:
+  nexus_pg_data:
+  nexus_redis_data:
+  nexus_rabbitmq_data:
+  nexus_minio_data:

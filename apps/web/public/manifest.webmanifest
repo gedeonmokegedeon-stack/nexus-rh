@@ -1,0 +1,18 @@
+{
+  "name": "NEXUS RH — Plateforme SaaS RH, Présences & Paie",
+  "short_name": "NEXUS RH",
+  "description": "Gestion RH multi-entreprises et multi-sites, présences biométriques multi-marques et paie paramétrable RDC.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0B1628",
+  "theme_color": "#0B1628",
+  "lang": "fr-CD",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

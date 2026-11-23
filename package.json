@@ -1,0 +1,39 @@
+{
+  "name": "nexus-rh",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "NEXUS RH — Plateforme SaaS multi-entreprises et multi-sites de gestion RH, présences biométriques multi-marques et paie complète (RDC).",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.34.9",
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:governance": "node infra/scripts/check-governance.mjs",
+    "verify": "pnpm check:governance && pnpm typecheck && pnpm test && pnpm build",
+    "db:migrate": "pnpm --filter @nexus-rh/database migrate",
+    "dev:api": "pnpm --filter @nexus-rh/api dev",
+    "dev:web": "pnpm --filter @nexus-rh/web dev"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.20.0",
+    "turbo": "^2.5.0",
+    "typescript": "~6.0.3",
+    "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@swc/core",
+      "argon2",
+      "esbuild",
+      "sharp"
+    ]
+  }
+}

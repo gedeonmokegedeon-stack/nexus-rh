@@ -1,0 +1,23 @@
+{
+  "name": "@nexus-rh/database",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "migrate": "node dist/cli-migrate.js"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.3.0",
+    "@nexus-rh/crypto-audit": "workspace:*",
+    "@nexus-rh/shared-types": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.0"
+  }
+}

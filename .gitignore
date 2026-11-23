@@ -1,0 +1,47 @@
+# Dépendances
+node_modules/
+.pnpm-store/
+
+# Artefacts de compilation et caches
+dist/
+build/
+out/
+.next/
+next-env.d.ts
+.turbo/
+.cache/
+*.tsbuildinfo
+
+# Couverture et rapports de tests
+coverage/
+playwright-report/
+test-results/
+
+# Secrets, variables d'environnement et clés cryptographiques (JAMAIS dans Git)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.jks
+secrets/
+
+# Données locales de développement / sandbox (PGlite, stockage S3 local)
+.data/
+*.sqlite
+*.sqlite3
+*.db
+
+# Journaux et fichiers système
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
